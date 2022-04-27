@@ -61,6 +61,27 @@ async function run() {
       const result = donateUserCollection.deleteOne({ _id: ObjectId(id) });
       res.send(result);
     });
+
+    // show all donar
+    app.get("/donate", async (req, res) => {
+      const cursor = donateUserCollection.find({});
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // delete donar
+    app.delete("/donar/:id", (req, res) => {
+      const id = req.params.id;
+      const result = donateUserCollection.deleteOne({ _id: ObjectId(id) });
+      res.send(result);
+    });
+
+    // add event
+    app.post("/addEvent", async (req, res) => {
+      const body = req.body;
+      const result = await volunteerCollection.insertOne(body);
+      res.send(result);
+    });
   } finally {
     // client.close();
   }
