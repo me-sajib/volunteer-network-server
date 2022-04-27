@@ -14,6 +14,10 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+app.get("/", (req, res) => {
+  res.send("hey express what's up........");
+});
+
 async function run() {
   try {
     await client.connect();
@@ -87,9 +91,6 @@ async function run() {
   }
 }
 run();
-app.get("/", (req, res) => {
-  res.send("hey express what's up");
-});
 
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
