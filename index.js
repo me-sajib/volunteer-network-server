@@ -54,6 +54,13 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+
+    // donate event delete
+    app.delete("/donate/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = donateUserCollection.deleteOne({ _id: ObjectId(id) });
+      res.send(result);
+    });
   } finally {
     // client.close();
   }
