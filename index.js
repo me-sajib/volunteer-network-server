@@ -15,7 +15,7 @@ const client = new MongoClient(uri, {
 });
 
 app.get("/", (req, res) => {
-  res.send("hey express what's up.........");
+  res.send("hey express what's up..........");
 });
 
 async function run() {
