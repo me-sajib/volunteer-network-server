@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
@@ -14,6 +15,25 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+// verify token
+function verifyToken(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth) {
+    return res.sendStatus(401);
+  }
+  const token = auth.split(" ")[1];
+  if (!token) {
+    return res.sendStatus(401);
+  }
+  // verify token
+  jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
+    if (err) {
+      return res.send("invalid token");
+    }
+    req.decode = decode;
+    next();
+  });
+}
 app.get("/", (req, res) => {
   res.send("hey express what's up..........");
 });
@@ -53,11 +73,14 @@ async function run() {
 
     // donate volunteer data
 
-    app.get("/donate/:email", async (req, res) => {
+    app.get("/donate/:email", verifyToken, async (req, res) => {
+      const token = req.decode.email;
       const email = req.params.email;
-      const cursor = donateUserCollection.find({ email: email });
-      const result = await cursor.toArray();
-      res.send(result);
+      if (token === email) {
+        const cursor = donateUserCollection.find({ email: email });
+        const result = await cursor.toArray();
+        res.send(result);
+      }
     });
 
     // donate event delete
@@ -86,6 +109,15 @@ async function run() {
       const body = req.body;
       const result = await volunteerCollection.insertOne(body);
       res.send(result);
+    });
+
+    // add jwt token
+    app.post("/addToken", async (req, res) => {
+      const email = req.body;
+      const token = jwt.sign(email, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+      res.send({ token });
     });
   } finally {
     // client.close();
